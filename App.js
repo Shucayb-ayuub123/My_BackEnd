@@ -13,9 +13,7 @@ app.use("/Auth", AuthRoute);
 
 app.use("/task", Task_OP);
 
-app.get("/" , (req,res) => {
-  res.send("Send data")
-})
+
 app.listen(PORT, () => {
   console.log("Server running on port " + PORT);
 });
