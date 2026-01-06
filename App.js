@@ -18,7 +18,7 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.use("/auth", AuthRoute);
+app.use("/Auth", AuthRoute);
 app.use("/task", Task_OP);
 
 app.listen(PORT, () => {
