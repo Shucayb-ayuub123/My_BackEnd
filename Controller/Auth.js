@@ -6,8 +6,12 @@ import dotenv from "dotenv";
 dotenv.config();
 
 export const SignUp = async (req, res) => {
+  
   const { Name, Email, password } = req.body;
-
+  
+  if (!Name || !Email || !password) {
+    return res.status(500).json({success : false , message : "Undefine request"})
+  }
   try {
     const [existingUser] = await db.query(
       "SELECT * FROM user_check WHERE Email = ?",
@@ -22,7 +26,7 @@ export const SignUp = async (req, res) => {
 
     const hashPass = await bcrypt.hash(password, 10);
 
-    const result = await db.query(
+    const [result] = await db.query(
       "INSERT INTO user_check (Name, Password, Email) VALUES (?,?,?)",
       [Name, hashPass, Email]
     );
