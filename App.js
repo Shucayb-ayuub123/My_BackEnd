@@ -8,20 +8,13 @@ dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-app.use(cors())
-// ✅ CORS configuration
-// app.use(cors({
-//   origin: "https://todo-app-klcq.vercel.app", // frontend URL
-//   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-//   credentials: true, // only if you need cookies/auth headers
-// }));
-
-// // Handle OPTIONS requests globally
-// // app.options("*", cors({
-// //   origin: "https://todo-app-klcq.vercel.app",
-// //   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-// //   credentials: true,
-// // }));
+app.use(
+  cors({
+    origin: "https://todo-app-klcq.vercel.app", // your frontend URL
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    credentials: true, // if you are using cookies or auth headers
+  })
+);
 
 // Body parsers
 app.use(express.json());
