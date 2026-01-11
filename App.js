@@ -7,9 +7,12 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const app = express();
-const PORT =  3000;
-app.use(cors());
-
+const PORT = process.env.PORT || 5000;
+app.use(cors({
+  origin: "*",
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  credentials: true
+}));
 // Body parsers
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -21,6 +24,8 @@ app.get("/", (req, res) => {
 app.use("/Auth", AuthRoute);
 app.use("/task", Task_OP);
 
+
+
 app.listen(PORT, () => {
-  console.log("Server running on port " + PORT);
+  console.log(`Server running on port ${PORT}`);
 });
