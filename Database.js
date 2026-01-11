@@ -7,7 +7,22 @@ const Mysql = mysql.createPool({
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_DATABASE,
-  port: process.env.DB_PORT ? parseInt(process.env.DB_PORT) : 3306
+  port: Number(process.env.DB_PORT),
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0,
+  connectTimeout: 10000, // 10 seconds
+  ssl: {
+    rejectUnauthorized: false
+  }
 });
+Mysql.getConnection()
+  .then(conn => {
+    console.log("✅ MySQL Connected");
+    conn.release();
+  })
+  .catch(err => {
+    console.error("❌ MySQL Connection Failed:", err.message);
+  });
 
-export default Mysql
+export default Mysql;

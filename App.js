@@ -7,14 +7,8 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 3000;
-app.use(
-  cors({
-    origin: "https://todo-app-klcq.vercel.app", // your frontend URL
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    credentials: true, // if you are using cookies or auth headers
-  })
-);
+const PORT =  3000;
+app.use(cors());
 
 // Body parsers
 app.use(express.json());
