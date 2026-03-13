@@ -1,19 +1,24 @@
+
+
+
 import express from "express";
-import db from "../Database.js";
+import pool from "../Database.js";
 
 // Post
-const CreateTask = async (req, res) => {
+export const CreateTask = async (req, res) => {
   
   try {
-    const { Task_title, Description, Date1, complete } = req.body;
+    const { task_title, description, date1, complete } = req.body;
     const {id} = req.user
+   
+    console.log(task_title, description, date1, complete)
+    console.log(id)
+    const sql = "INSERT INTO tasks (task_title, description, date1, complete , user_id) VALUES ($1,$2, $3, $4, $5)";
 
-    const sql = "INSERT INTO tasks (Task_title, Description, Date1, complete , User_id) VALUES (?,?, ?, ?, ?)";
-
-    const [result] = await db.query(sql, [
-      Task_title,
-      Description,
-      Date1,
+    const result = await pool.query(sql, [
+      task_title,
+      description,
+      date1,
       complete,
       id,
     ]);
@@ -27,23 +32,23 @@ const CreateTask = async (req, res) => {
   }
 };
 
-export default CreateTask;
+
 // select
 export const Select_Task = async (req, res) => {
   const {id} = req.user
   try {
     const sql = `
       SELECT 
-        T.Task_id,
-        T.Task_title,
-        T.Description,
-        T.Date1,
+        T.task_id,
+        T.task_title,
+        T.description,
+        T.date1,
         T.complete
       FROM tasks T
-      INNER JOIN user_check U ON ${id} = U.ID
+      INNER JOIN user_check U ON ${id} = U.id
     `;
 
-    const [rows] = await db.query(sql);
+    const rows = await pool.query(sql);
 
     return res.status(200).json(rows);
   } catch (err) {
@@ -56,24 +61,24 @@ export const Select_Task = async (req, res) => {
 
 export const UpdateTask = async (req, res) => {
   try {
-    const { Task_id } = req.params;
-    const { Task_title, Description, Date1 } = req.body;
+    const { task_id } = req.params;
+    const { task_title, description, date1 } = req.body;
 
-    const formattedDate = Date1
-      ? new Date(Date1).toISOString().split("T")[0]
+    const formattedDate = date1
+      ? new Date(date1).toISOString().split("T")[0]
       : null;
 
     const sql = `
       UPDATE tasks
-      SET Task_title = ?, Description = ?, Date1 = ?
-      WHERE Task_id = ?
+      SET task_title = $1, description = $2, date1 = $3
+      WHERE task_id = $4
     `;
 
-    const [result] = await db.query(sql, [
-      Task_title,
-      Description,
+    const [result] = await pool.query(sql, [
+      task_title,
+      description,
       formattedDate,
-      Task_id,
+      task_id,
     ]);
 
     if (result.affectedRows === 0) {
@@ -90,11 +95,11 @@ export const UpdateTask = async (req, res) => {
 
 export const DeleteTask = async (req, res) => {
   try {
-    const { Task_id } = req.params;
+    const { task_id } = req.params;
 
-    const sql = "DELETE FROM tasks WHERE Task_id = ?";
+    const sql = "DELETE FROM tasks WHERE task_id = $1";
 
-    const [result] = await db.query(sql, [Task_id]);
+    const [result] = await pool.query(sql, [task_id]);
 
     if (result.affectedRows === 0) {
       return res.status(404).json({ message: "Task not found" });
@@ -110,9 +115,9 @@ export const ToggleTask = async (req, res) => {
   try {
     const { id } = req.params;
     
-    const sql = "UPDATE tasks SET complete = NOT complete WHERE Task_id = ?";
+    const sql = "UPDATE tasks SET complete = NOT complete WHERE task_id = $1";
 
-    const [result] = await db.query(sql, [id]);
+    const [result] = await pool.query(sql, [id]);
 
     if (result.affectedRows === 0) {
       return res.status(404).json({ message: "Task not found" });

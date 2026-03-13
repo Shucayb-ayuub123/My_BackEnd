@@ -1,6 +1,6 @@
 import express from "express";
-import { Select_Task  , UpdateTask , DeleteTask  ,ToggleTask } from "../Controller/PostTask.js";
-import CreateTask from '../Controller/PostTask.js'
+import { Select_Task  , UpdateTask , DeleteTask  ,ToggleTask, CreateTask } from "../Controller/PostTask.js";
+
 import { verifyToken } from "../middleware/authentification.js";
 
 const router = express.Router();

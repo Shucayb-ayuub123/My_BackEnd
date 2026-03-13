@@ -1,4 +1,4 @@
-import db from "../Database.js";
+import pool from "../Database.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 // import nodemailer from "nodemailer";
@@ -6,22 +6,21 @@ import dotenv from "dotenv";
 dotenv.config();
 
 export const SignUp = async (req, res) => {
-  
-  const { Name, Email, password } = req.body;
-    console.log(req.body);
-    
-   if (!Name || !Email || !password) {
-  return res.status(400).json({
-    success: false,
-    message: "Missing required fields"
-  });
-}
+  const { name, email, password } = req.body;
+
+  if (!name || !email || !password) {
+    return res.status(400).json({
+      success: false,
+      message: "Missing required fields",
+    });
+  }
 
   try {
-    const [existingUser] = await db.query(
-      "SELECT * FROM user_check WHERE Email = ?",
-      [Email]
+    const results = await pool.query(
+      "SELECT * FROM user_check WHERE email = $1",
+      [email],
     );
+    const existingUser = results.rows;
 
     if (existingUser.length > 0) {
       return res
@@ -31,9 +30,9 @@ export const SignUp = async (req, res) => {
 
     const hashPass = await bcrypt.hash(password, 10);
 
-    const [result] = await db.query(
-      "INSERT INTO user_check (Name, Password, Email) VALUES (?,?,?)",
-      [Name, hashPass, Email]
+    const result = await pool.query(
+      "INSERT INTO user_check (name, password, email) VALUES ($1,$2,$3)",
+      [name, hashPass, email],
     );
 
     return res.status(200).json({
@@ -42,42 +41,43 @@ export const SignUp = async (req, res) => {
       userId: result.insertId,
     });
   } catch (error) {
+    console.log(error);
     return res.status(500).json({ success: false, message: error.message });
   }
 };
 
+
+
 export const Login = async (req, res) => {
-  const { Email, password } = req.body;
+  const { email, password } = req.body;
+
   try {
-    // Use await db.query
-    const [data] = await db.query("SELECT * FROM user_check WHERE Email = ?", [
-      Email,
-    ]);
+    const result = await pool.query(
+      "SELECT * FROM user_check WHERE email = $1",
+      [email]
+    );
 
-    if (data.length === 0) {
-      return res
-        .status(400)
-        .json({ success: false, message: "User not found" });
+    console.log(result.rows)
+    if (result.rows.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "User not found",
+      });
     }
 
-    const user = data[0];
-
-    if (!user.password) {
-      return res
-        .status(500)
-        .json({ success: false, message: "User password not set in DB" });
-    }
+    const user = result.rows[0]; // ✅ get first user
 
     const isMatch = await bcrypt.compare(password, user.password);
 
     if (!isMatch) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Incorrect Password" });
+      return res.status(400).json({
+        success: false,
+        message: "Incorrect Password",
+      });
     }
 
     const token = jwt.sign(
-      { id: user.ID, email: user.Email },
+      { id: user.id, email: user.email },
       process.env.JW_SECRET,
       { expiresIn: "10y" }
     );
@@ -86,20 +86,28 @@ export const Login = async (req, res) => {
       success: true,
       message: "Login success",
       token,
-      user: { id: user.ID, name: user.Name, email: user.Email },
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+      },
     });
   } catch (error) {
-    return res.status(500).json({ success: false, message: error.message });
+    console.log(error);
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
   }
 };
 
 // export const forgotPassword = async (req, res) => {
 //   try {
-//     const { Email } = req.body;
-//     console.log("Email:", Email);
+//     const { email } = req.body;
+//     console.log("email:", email);
 
-//     const [rows] = await db.query("SELECT * FROM user_check WHERE Email = ?", [
-//       Email,
+//     const [rows] = await pool.query("SELECT * FROM user_check WHERE email = ?", [
+//       email,
 //     ]);
 //     console.log("Rows:", rows);
 
@@ -112,15 +120,15 @@ export const Login = async (req, res) => {
 //     const user = rows[0];
 //     const secret = process.env.JW_SECRET + user.password;
 
-//     const token = jwt.sign({ id: user.ID, email: user.Email }, secret, {
+//     const token = jwt.sign({ id: user.ID, email: user.email }, secret, {
 //       expiresIn: "15m",
 //     });
 
 //     const transporter = nodemailer.createTransport({
 //       service: "gmail",
 //       auth: {
-//         user: process.env.EMAIL_USER,
-//         pass: process.env.EMAIL_PASS,
+//         user: process.env.email_USER,
+//         pass: process.env.email_PASS,
 //       },
 //     });
 
@@ -128,13 +136,13 @@ export const Login = async (req, res) => {
 //     console.log("Transport verified");
 
 //     await transporter.sendMail({
-//       from: process.env.EMAIL_USER,
-//       to: Email,
+//       from: process.env.email_USER,
+//       to: email,
 //       subject: "Reset Password",
 //       text: "Test reset email",
 //     });
 
-//     res.json({ message: "Email sent" });
+//     res.json({ message: "email sent" });
 //   } catch (error) {
 //     console.error("FORGOT ERROR:", error);
 //     res.status(500).json({ message: error.message });
