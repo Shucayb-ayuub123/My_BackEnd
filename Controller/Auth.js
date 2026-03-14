@@ -57,7 +57,6 @@ export const Login = async (req, res) => {
       [email]
     );
 
-    console.log(result.rows)
     if (result.rows.length === 0) {
       return res.status(400).json({
         success: false,

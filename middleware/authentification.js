@@ -14,8 +14,8 @@ export const verifyToken = (req, res, next) => {
     // 2️⃣ Extract token
     const token = authHeader.split(" ")[1];
 
-    console.log(token)
 
+     console.log(token)
     if (!token) {
       return res.status(401).json({ message: "Invalid token format" });
     }
@@ -23,9 +23,12 @@ export const verifyToken = (req, res, next) => {
     // 3️⃣ Verify token
     const decoded = jwt.verify(token, process.env.JW_SECRET);
 
-    console.log(decoded);
+    
+
     // 4️⃣ Attach user to request
     req.user = decoded;
+
+    console.log(req.user)
 
     next();
   } catch (err) {

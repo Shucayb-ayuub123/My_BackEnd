@@ -6,8 +6,8 @@ import { verifyToken } from "../middleware/authentification.js";
 const router = express.Router();
 router.post("/User_Task", verifyToken , CreateTask);
 router.get("/Select_Task", verifyToken , Select_Task);
-router.put("/EditTask/:Task_id", UpdateTask);
-router.delete("/DeleteTask/:Task_id", DeleteTask);
+router.put("/EditTask/:task_id", UpdateTask);
+router.delete("/DeleteTask/:task_id", DeleteTask);
 router.put("/ToggleTask/:id", ToggleTask);
 
 
