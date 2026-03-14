@@ -8,11 +8,12 @@ dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT;
+
 app.use(cors({
-  origin: "https://todo-app-wd0j.onrender.com",
+  origin: "https://todo-app-klcq.vercel.app",
   methods: ["GET", "POST", "PUT", "DELETE"],
   credentials: true
-}));    
+}));
 // Body parsers
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
