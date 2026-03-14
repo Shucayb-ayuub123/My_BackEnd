@@ -9,7 +9,7 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT;
 app.use(cors({
-  origin: "*",
+  origin: "https://todo-app-wd0j.onrender.com",
   methods: ["GET", "POST", "PUT", "DELETE"],
   credentials: true
 }));    
@@ -18,7 +18,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.get("/", (req, res) => {
-  res.send("Just for testing");
+  res.send("Just shucayb");
 });
 
 app.use("/Auth", AuthRoute);
